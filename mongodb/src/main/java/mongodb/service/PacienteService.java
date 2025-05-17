@@ -16,4 +16,16 @@ public class PacienteService {
     public List<Paciente> listarTodos() {
         return repository.buscarTodos();
     }
+    
+    public Paciente buscarPorId(String id) {
+        return repository.buscarPorId(id);
+    }
+
+    public void deletar(String id) {
+        repository.deletarPorId(id);
+    }
+
+    public void atualizar(String id, Paciente paciente) {
+        repository.atualizar(id, paciente);
+    }
 }

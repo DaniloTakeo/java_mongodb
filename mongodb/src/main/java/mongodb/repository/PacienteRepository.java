@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 
 import mongodb.config.MongoConfig;
 import mongodb.domain.Paciente;
@@ -41,5 +44,34 @@ public class PacienteRepository {
             lista.add(p);
         }
         return lista;
+    }
+    
+    public Paciente buscarPorId(String id) {
+        Document doc = collection.find(Filters.eq("_id", new ObjectId(id))).first();
+        if (doc == null) return null;
+
+        Paciente p = new Paciente();
+        p.setId(doc.getObjectId("_id").toHexString());
+        p.setNome(doc.getString("nome"));
+        p.setCpf(doc.getString("cpf"));
+        p.setDataNascimento(LocalDate.parse(doc.getString("dataNascimento")));
+        p.setAtivo(doc.getBoolean("ativo", true));
+        return p;
+    }
+
+    public void deletarPorId(String id) {
+        collection.deleteOne(Filters.eq("_id", new ObjectId(id)));
+    }
+
+    public void atualizar(String id, Paciente paciente) {
+        collection.updateOne(
+            Filters.eq("_id", new ObjectId(id)),
+            Updates.combine(
+                Updates.set("nome", paciente.getNome()),
+                Updates.set("cpf", paciente.getCpf()),
+                Updates.set("dataNascimento", paciente.getDataNascimento().toString()),
+                Updates.set("ativo", paciente.isAtivo())
+            )
+        );
     }
 }
